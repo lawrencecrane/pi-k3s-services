@@ -1,0 +1,15 @@
+---
+- name: Storageclass deployment
+  hosts: kubernetes
+  become: yes
+  roles:
+    - role: storageclass
+  tags:
+    - storageclass
+- name: Registry deployment
+  hosts: kubernetes
+  become: yes
+  roles:
+    - role: registry
+  tags:
+    - registry
