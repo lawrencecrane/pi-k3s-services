@@ -1,0 +1,117 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: etc-pihole-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 8Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: etc-dnsmasq-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 8Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pihole-dns
+  labels:
+    app: pihole-dns
+spec:
+  ports:
+  - port: 53
+    name: "dns"
+    protocol: UDP
+  - port: 67
+    protocol: UDP
+    name: "dns2"
+  type: LoadBalancer
+  selector:
+    app: pihole
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pihole-http
+  labels:
+    app: pihole-http
+spec:
+  ports:
+  - port: 80
+    name: "http"
+    protocol: TCP
+  - port: 443
+    protocol: TCP
+    name: "https"
+  type: LoadBalancer
+  selector:
+    app: pihole
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pihole-deployment
+  labels:
+    app: pihole
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pihole 
+  template:
+    metadata:
+      labels:
+        app: pihole
+    spec:
+      containers:
+      - name: pihole
+        image: pihole/pihole:4.3.1-4_armhf
+        volumeMounts:
+        - name: etc-pihole
+          mountPath: /etc/pihole
+        - name: etc-dnsmasq
+          mountPath: /etc/dnsmasq.d
+        ports:
+        - containerPort: 53
+          protocol: UDP
+        - containerPort: 53
+          protocol: TCP
+        - containerPort: 67
+          protocol: UDP
+        - containerPort: 80
+          protocol: TCP
+        - containerPort: 443
+          protocol: TCP
+        env:
+        - name: TZ
+          value: "Europe/Helsinki"
+        - name: WEBPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pihole-webpasswd
+              key: webpasswd
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+        - 127.0.0.1
+        - 1.1.1.1
+      volumes:
+      - name: etc-pihole
+        persistentVolumeClaim:
+          claimName: etc-pihole-pvc
+      - name: etc-dnsmasq
+        persistentVolumeClaim:
+          claimName: etc-dnsmasq-pvc
