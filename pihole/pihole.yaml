@@ -56,9 +56,22 @@ spec:
   - port: 443
     protocol: TCP
     name: "https"
-  type: LoadBalancer
   selector:
     app: pihole
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: pihole-ingress
+spec:
+  rules:
+  - host: dns.homer.fi
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: pihole-http
+          servicePort: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
