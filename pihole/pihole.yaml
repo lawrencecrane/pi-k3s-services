@@ -68,7 +68,7 @@ spec:
   - host: dns.homer.fi
     http:
       paths:
-      - path: /
+      - path: /admin
         backend:
           serviceName: pihole-http
           servicePort: 80
