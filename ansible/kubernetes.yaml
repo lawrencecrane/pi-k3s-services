@@ -1,8 +1,0 @@
----
-- name: Storageclass deployment
-  hosts: kubernetes
-  become: yes
-  roles:
-    - role: storageclass
-  tags:
-    - storageclass

@@ -1,5 +1,0 @@
----
-- import_playbook: kubernetes.yaml
-  tags:
-  - deploy
-
