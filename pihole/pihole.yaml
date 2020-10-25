@@ -12,19 +12,6 @@ spec:
       storage: 8Gi
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: etc-dnsmasq-pvc
-  namespace: default
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: local-path
-  resources:
-    requests:
-      storage: 8Gi
----
-apiVersion: v1
 kind: Service
 metadata:
   name: pihole-dns
@@ -91,12 +78,13 @@ spec:
     spec:
       containers:
       - name: pihole
-        image: pihole/pihole:4.3.1-4_armhf
+        image: pihole/pihole:v5.1.2-armhf-stretch
         volumeMounts:
         - name: etc-pihole
           mountPath: /etc/pihole
-        - name: etc-dnsmasq
-          mountPath: /etc/dnsmasq.d
+        - name: wildcard-conf
+          mountPath: /etc/dnsmasq.d/wildcard.conf
+          subPath: wildcard.conf
         ports:
         - containerPort: 53
           protocol: UDP
@@ -122,9 +110,12 @@ spec:
         - 127.0.0.1
         - 1.1.1.1
       volumes:
+      - name: wildcard-conf
+        configMap:
+          name: pihole-wildcard-config
+          items:
+          - key: wildcard.conf
+            path: wildcard.conf
       - name: etc-pihole
         persistentVolumeClaim:
           claimName: etc-pihole-pvc
-      - name: etc-dnsmasq
-        persistentVolumeClaim:
-          claimName: etc-dnsmasq-pvc
