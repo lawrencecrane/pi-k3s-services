@@ -59,7 +59,7 @@ spec:
   selector:
     app: pihole
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: pihole-ingress
@@ -69,9 +69,12 @@ spec:
     http:
       paths:
       - path: /admin
+        pathType: Prefix
         backend:
-          serviceName: pihole-http
-          servicePort: 80
+          service:
+            name: pihole-http
+            port:
+              number: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
