@@ -91,7 +91,7 @@ spec:
     spec:
       containers:
       - name: pihole
-        image: pihole/pihole:v5.1.2-armhf-stretch
+        image: pihole/pihole:v5.5.1-armhf-stretch
         volumeMounts:
         - name: etc-pihole
           mountPath: /etc/pihole
